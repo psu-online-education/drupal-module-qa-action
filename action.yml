@@ -28,6 +28,9 @@ runs:
       with:
         version: ${{ inputs.profile == 'current-major' && '10.4.x-dev' || '11.x-dev' }}
         dependencies: "drupal/coder"
+    - name: Set minimum stability
+      run: cd ~/drupal && composer config minimum-stability dev
+      shell: bash
     - name: Install additional dependencies
       if: ${{ inputs.dependencies != '' }}
       run: cd ~/drupal && composer require ${{ inputs.dependencies }}
