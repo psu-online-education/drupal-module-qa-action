@@ -1,0 +1,40 @@
+name: 'Drupal module quality assurance checker'
+description: 'Runs quality assurance checks against generic drupal modules'
+inputs:
+  profile:
+    description: 'The testing profile to enable, must be one of "current-major" or "next-major"'
+    required: true
+    type: string
+runs:
+  using: "composite"
+  steps:
+    - name: Setup mysql
+      uses: shogo82148/actions-setup-mysql@7bb56b6ec54579fca90e6ff5c35f8816d0ceedb5 # 1.42.0
+      with:
+        mysql-version: '8.0'
+    - name: Setup PHP
+      uses: shivammathur/setup-php@9e72090525849c5e82e596468b86eb55e9cc5401 # 2.32.0
+      with:
+        php-version: '8.3'
+    - name: Setup Drupal action
+      uses: bluehorndigital/setup-drupal@c56c05202f9bd155df7772b4deadf7c726acfed5 # 1.1.0
+      with:
+        version: ${{ inputs.profile == 'current-major' && '10.4.x-dev' || '11.x-dev' }}
+        dependencies: 'drupal/coder:^8.3'
+    - name: Checkout module
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4.2.2
+    - name: Copy module into drupal installation
+      run: mkdir -p ~/drupal/web/modules/contrib && cp -ar ~/work/${{ github.event.repository.name }}/${{ github.event.repository.name }} ~/drupal/web/modules/contrib
+      shell: bash
+    - name: Check coding standards
+      run: ~/drupal/vendor/bin/phpcs --standard=Drupal,DrupalPractice --extensions=php,module,install,js ~/drupal/web/modules/contrib/${{ github.event.repository.name }}
+      shell: bash
+    - name: Run php built-in server
+      run: php -S 127.0.0.1:8080 -t ~/drupal/web &
+      shell: bash
+    - name: Install test database
+      run: mysql -uroot -h 127.0.0.1 -e "create schema db;"
+      shell: bash
+    - name: Run phpunit tests
+      run: cd ~/drupal/web && \export SIMPLETEST_BASE_URL="http://127.0.0.1:8080" && export SIMPLETEST_DB="mysql://root@127.0.0.1:3306/db" && export SYMFONY_DEPRECATIONS_HELPER="999999" &&  ../vendor/bin/phpunit -c core modules/contrib/${{ github.event.repository.name }}
+      shell: bash
