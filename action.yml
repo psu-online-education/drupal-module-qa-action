@@ -9,6 +9,9 @@ inputs:
     description: 'A list of additional composer dependencies'
     required: false
     type: string
+  composer_auth_token:
+    required: false
+    type: string
 runs:
   using: "composite"
   steps:
@@ -35,11 +38,8 @@ runs:
       run: mkdir -p ~/drupal/web/modules/contrib && cp -ar ~/work/${{ github.event.repository.name }}/${{ github.event.repository.name }} ~/drupal/web/modules/contrib
       shell: bash
     - name: Install module composer.library.json dependencies
-      with:
-        secrets:
-          COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       env:
-        COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.COMPOSER_TOKEN }}"} }'
+        COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ inputs.composer_auth_token }}"} }'
       if: ${{ hashFiles('**/composer.libraries.json') != '' }}
       run: cd ~/drupal && composer config --no-plugins "allow-plugins.wikimedia/composer-merge-plugin" "true" && composer require wikimedia/composer-merge-plugin && composer config --json "extra.merge-plugin.include" '["web/modules/contrib/${{ github.event.repository.name }}/composer.libraries.json"]' && composer update
       shell: bash
