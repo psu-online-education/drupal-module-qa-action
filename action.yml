@@ -36,7 +36,7 @@ runs:
       shell: bash
     - name: Install module composer.library.json dependencies
       if: ${{ hashFiles('**/composer.libraries.json') != '' }}
-      run: cd ~/drupal && composer config --no-plugins "allow-plugins.wikimedia/composer-merge-plugin" "true" && composer require wikimedia/composer-merge-plugin && composer config --json "extra.merge-plugin.include" '[web/modules/contrib/${{ github.event.repository.name }}/composer.libraries.json]'
+      run: cd ~/drupal && composer config --no-plugins "allow-plugins.wikimedia/composer-merge-plugin" "true" && composer require wikimedia/composer-merge-plugin && composer config --json "extra.merge-plugin.include" '["web/modules/contrib/${{ github.event.repository.name }}/composer.libraries.json"]'
       shell: bash
     - name: Check coding standards
       run: ~/drupal/vendor/bin/phpcs --standard=Drupal,DrupalPractice --extensions=php,module,install,js ~/drupal/web/modules/contrib/${{ github.event.repository.name }}
