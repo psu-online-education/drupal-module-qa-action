@@ -35,6 +35,8 @@ runs:
       run: mkdir -p ~/drupal/web/modules/contrib && cp -ar ~/work/${{ github.event.repository.name }}/${{ github.event.repository.name }} ~/drupal/web/modules/contrib
       shell: bash
     - name: Install module composer.library.json dependencies
+      env:
+        COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{secrets.GITHUB_TOKEN}}"} }'
       if: ${{ hashFiles('**/composer.libraries.json') != '' }}
       run: cd ~/drupal && composer config --no-plugins "allow-plugins.wikimedia/composer-merge-plugin" "true" && composer require wikimedia/composer-merge-plugin && composer config --json "extra.merge-plugin.include" '["web/modules/contrib/${{ github.event.repository.name }}/composer.libraries.json"]' && composer update
       shell: bash
