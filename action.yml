@@ -41,7 +41,7 @@ runs:
       env:
         COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ inputs.composer_auth_token }}"} }'
       if: ${{ hashFiles('**/composer.libraries.json') != '' }}
-      run: cd ~/drupal && composer config --no-plugins "allow-plugins.wikimedia/composer-merge-plugin" "true" && composer require wikimedia/composer-merge-plugin && composer config --json "extra.merge-plugin.include" '["web/modules/contrib/${{ github.event.repository.name }}/composer.libraries.json"]' && composer update
+      run: cd ~/drupal && composer config --no-plugins "allow-plugins.wikimedia/composer-merge-plugin" "true" && composer require wikimedia/composer-merge-plugin && composer config --json "extra.merge-plugin.include" '["web/modules/contrib/${{ github.event.repository.name }}/composer.libraries.json"]' && composer update --prefer-dist --no-interaction --no-suggest
       shell: bash
     - name: Check coding standards
       run: ~/drupal/vendor/bin/phpcs --standard=Drupal,DrupalPractice --extensions=php,module,install,js ~/drupal/web/modules/contrib/${{ github.event.repository.name }}
