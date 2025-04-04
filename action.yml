@@ -35,7 +35,7 @@ runs:
       run: mkdir -p ~/drupal/web/modules/contrib && cp -ar ~/work/${{ github.event.repository.name }}/${{ github.event.repository.name }} ~/drupal/web/modules/contrib
       shell: bash
     - name: debug
-      run: echo "${{ format('~/drupal/web/modules/contrib/{0}/composer.libraries.json', github.event.repository.name) }}" && echo "${{ hashFiles(format('~/drupal/web/modules/contrib/{0}/composer.libraries.json', github.event.repository.name)) != '' }}"
+      run: ls -lah ${{ format('~/drupal/web/modules/contrib/{0}', github.event.repository.name) }} && echo "${{ format('~/drupal/web/modules/contrib/{0}/composer.libraries.json', github.event.repository.name) }}" && echo "${{ hashFiles(format('~/drupal/web/modules/contrib/{0}/composer.libraries.json', github.event.repository.name)) != '' }}"
       shell: bash
     - name: Install module composer.library.json dependencies
       if: ${{ hashFiles(format('~/drupal/web/modules/contrib/{0}/composer.libraries.json', github.event.repository.name)) != '' }}
