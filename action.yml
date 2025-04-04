@@ -34,6 +34,9 @@ runs:
     - name: Copy module into drupal installation
       run: mkdir -p ~/drupal/web/modules/contrib && cp -ar ~/work/${{ github.event.repository.name }}/${{ github.event.repository.name }} ~/drupal/web/modules/contrib
       shell: bash
+    - name: debug
+      run: echo "${{ format('~/drupal/web/modules/contrib/{0}/composer.libraries.yml', github.event.repository.name) }}"
+      shell: bash
     - name: Install module composer.library.json dependencies
       if: ${{ hashFiles(format('~/drupal/web/modules/contrib/{0}/composer.libraries.yml', github.event.repository.name)) != '' }}
       run: cd ~/drupal && composer require wikimedia/composer-merge-plugin && composer config --json "extra.merge-plugin.include" '[web/modules/contrib/${{ github.event.repository.name }}/composer.libraries.json]'
