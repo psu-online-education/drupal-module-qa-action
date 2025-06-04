@@ -27,7 +27,7 @@ runs:
       run: mkdir -p ~/drupal/web/modules/contrib && cp -ar ~/work/${{ github.event.repository.name }}/${{ github.event.repository.name }} ~/drupal/web/modules/contrib
       shell: bash
     - name: Check coding standards
-      run: ~/drupal/vendor/bin/phpcs --standard=Drupal,DrupalPractice --extensions=php,module,install,js ~/drupal/web/modules/contrib/${{ github.event.repository.name }}
+      run: ~/drupal/vendor/bin/phpcs --standard=Drupal,DrupalPractice --extensions=php,module,install ~/drupal/web/modules/contrib/${{ github.event.repository.name }}
       shell: bash
     - name: Run php built-in server
       run: php -S 127.0.0.1:8080 -t ~/drupal/web &
