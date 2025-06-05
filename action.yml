@@ -5,6 +5,13 @@ inputs:
     description: 'The testing profile to enable, must be one of "current-major" or "next-major"'
     required: true
     type: string
+  dependencies:
+    description: 'A list of additional composer dependencies'
+    required: false
+    type: string
+  composer_auth_token:
+    required: false
+    type: string
 runs:
   using: "composite"
   steps:
@@ -20,11 +27,24 @@ runs:
       uses: bluehorndigital/setup-drupal@c56c05202f9bd155df7772b4deadf7c726acfed5 # 1.1.0
       with:
         version: ${{ inputs.profile == 'current-major' && '10.4.x-dev' || '11.x-dev' }}
-        dependencies: 'drupal/coder:^8.3'
+        dependencies: "drupal/coder"
+    - name: Set minimum stability
+      run: cd ~/drupal && composer config minimum-stability dev
+      shell: bash
+    - name: Install additional dependencies
+      if: ${{ inputs.dependencies != '' }}
+      run: cd ~/drupal && composer require ${{ inputs.dependencies }}
+      shell: bash
     - name: Checkout module
       uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4.2.2
     - name: Copy module into drupal installation
       run: mkdir -p ~/drupal/web/modules/contrib && cp -ar ~/work/${{ github.event.repository.name }}/${{ github.event.repository.name }} ~/drupal/web/modules/contrib
+      shell: bash
+    - name: Install module composer.library.json dependencies
+      env:
+        COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ inputs.composer_auth_token }}"} }'
+      if: ${{ hashFiles('**/composer.libraries.json') != '' }}
+      run: cd ~/drupal && composer config --no-plugins "allow-plugins.wikimedia/composer-merge-plugin" "true" && composer require wikimedia/composer-merge-plugin && composer config --json "extra.merge-plugin.include" '["web/modules/contrib/${{ github.event.repository.name }}/composer.libraries.json"]' && composer update --prefer-dist --no-interaction --no-suggest
       shell: bash
     - name: Check coding standards
       run: ~/drupal/vendor/bin/phpcs --standard=Drupal,DrupalPractice --extensions=php,module,install ~/drupal/web/modules/contrib/${{ github.event.repository.name }}
